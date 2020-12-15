@@ -1,11 +1,13 @@
 package reviews.model;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Table;
+import java.util.Date;
 
 @EqualsAndHashCode(callSuper = true)
 @Entity
@@ -19,6 +21,13 @@ public class Review extends BaseEntity {
     @Column(name = "author_nickname")
     private String authorNickname;
 
-    @Column(name = "review")
-    private String review;
+    @Column
+    private Integer grade;
+
+    @Column
+    private String text;
+
+    @Column
+    @JsonFormat(pattern="dd.MM.yyyy", timezone="Europe/Moscow")
+    private Date date;
 }

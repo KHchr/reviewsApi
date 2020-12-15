@@ -1,7 +1,9 @@
 package reviews.rest;
 
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -10,6 +12,9 @@ import reviews.PageDecorator;
 import reviews.model.Review;
 import reviews.service.ReviewsService;
 
+import java.util.Date;
+
+@Slf4j
 @RestController
 @RequestMapping("/api/v1/reviews")
 public class ReviewsRestControllerV1 {
@@ -30,14 +35,13 @@ public class ReviewsRestControllerV1 {
 
     @RequestMapping(value = "{dishId}", method = RequestMethod.GET)
     public ResponseEntity<PageDecorator<Review>> getAllReviews(@PathVariable ("dishId") Long dishId,
-                                                      @RequestParam(required = false, defaultValue = "7") Integer limit,
-                                                      @RequestParam(required = false, defaultValue = "1") Integer page){
+                                                      @RequestParam(required = false, defaultValue = "10") Integer limit,
+                                                      @RequestParam(required = false, defaultValue = "0") Integer page){
 
 
-        Pageable pageable = PageRequest.of(page, limit);
+        Pageable pageable = PageRequest.of(page, limit, Sort.by("date").descending());
 
         PageDecorator<Review> reviews = this.reviewsService.getPageDishReviews(dishId, pageable);
-
 
         return new ResponseEntity<>(reviews, HttpStatus.OK);
     }
@@ -47,13 +51,12 @@ public class ReviewsRestControllerV1 {
     @RequestMapping(value = "/saveReview", method = RequestMethod.POST)
     public ResponseEntity<Review> saveReview(@RequestBody Review review){
         HttpHeaders headers = new HttpHeaders();
-
         if (review == null){
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         }
-
+        Date date = new Date();
+        review.setDate(date);
         this.reviewsService.save(review);
-
         return new ResponseEntity<>(review, headers, HttpStatus.CREATED);
     }
 
