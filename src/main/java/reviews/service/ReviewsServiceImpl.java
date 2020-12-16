@@ -7,8 +7,6 @@ import reviews.PageDecorator;
 import reviews.model.Review;
 import reviews.repository.ReviewsRepository;
 
-import java.util.List;
-
 @Slf4j
 @Service
 public class ReviewsServiceImpl implements ReviewsService{
@@ -26,19 +24,16 @@ public class ReviewsServiceImpl implements ReviewsService{
         reviewsRepository.save(review);
     }
 
-    @Override
-    public List<Review> getAllDishReviews(Long dishId) {
-        log.info("IN ReviewsServiceImpl getAll");
-        return reviewsRepository.findByDishId(dishId);
-    }
 
     @Override
     public PageDecorator<Review> getPageDishReviews(Long id, Pageable pageable) {
-
+        log.info("IN ReviewsServiceImpl getPageDishReviews");
         return new PageDecorator<>(reviewsRepository.findByDishId(id, pageable));
     }
 
-    public PageDecorator<Review> getData(Long dishId, Pageable pageable) {
-        return new PageDecorator<>(reviewsRepository.findByDishId(dishId, pageable));
+    @Override
+    public Review getById(Long id) {
+        return reviewsRepository.getOne(id);
     }
+
 }

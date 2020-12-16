@@ -6,7 +6,7 @@ import org.springframework.data.domain.Page;
 
 import java.util.List;
 
-@JsonPropertyOrder({"page", "pages", "totalEntities", "entities"})
+@JsonPropertyOrder({"page", "pages", "total", "reviews"})
 public class PageDecorator<T> {
 
     private final Page<T> page;
@@ -14,7 +14,7 @@ public class PageDecorator<T> {
     public PageDecorator(Page<T> page) {
         this.page = page;
     }
-    @JsonProperty("entities")
+    @JsonProperty("reviews")
     public List<T> getContent() {
         return this.page.getContent();
     }
@@ -24,7 +24,7 @@ public class PageDecorator<T> {
         return page.getTotalPages();
     }
 
-    @JsonProperty("totalEntities")
+    @JsonProperty("total")
     public long getTotalElements() {
         return page.getTotalElements();
     }

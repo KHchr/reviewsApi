@@ -60,5 +60,35 @@ public class ReviewsRestControllerV1 {
         return new ResponseEntity<>(review, headers, HttpStatus.CREATED);
     }
 
+    @RequestMapping(value = "/{reviewId}/like", method = RequestMethod.PATCH)
+    public ResponseEntity<Review> addLike(@PathVariable("reviewId") Long reviewId){
+        if (reviewId == null) {
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        }
+
+        Review review = this.reviewsService.getById(reviewId);
+
+        review.setLikes(review.getLikes() + 1);
+
+        reviewsService.save(review);
+
+        return new ResponseEntity<>(review, HttpStatus.OK);
+    }
+
+    @RequestMapping(value = "/{reviewId}/dislike", method = RequestMethod.PATCH)
+    public ResponseEntity<Review> addDislike(@PathVariable("reviewId") Long reviewId){
+        if (reviewId == null) {
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        }
+
+        Review review = this.reviewsService.getById(reviewId);
+
+        review.setLikes(review.getDislikes() + 1);
+
+        reviewsService.save(review);
+
+        return new ResponseEntity<>(review, HttpStatus.OK);
+    }
+
 
 }
