@@ -12,10 +12,12 @@ import reviews.PageDecorator;
 import reviews.model.Review;
 import reviews.service.ReviewsService;
 
+import javax.servlet.http.HttpSession;
 import java.util.Date;
 
 @Slf4j
 @RestController
+@SessionAttributes({"like", "dislike"})
 @RequestMapping("/api/v1/reviews")
 public class ReviewsRestControllerV1 {
 
@@ -56,18 +58,40 @@ public class ReviewsRestControllerV1 {
         }
         Date date = new Date();
         review.setDate(date);
+        review.setLikes(0);
+        review.setDislikes(0);
         this.reviewsService.save(review);
         return new ResponseEntity<>(review, headers, HttpStatus.CREATED);
     }
 
     @RequestMapping(value = "/{reviewId}/like", method = RequestMethod.PATCH)
-    public ResponseEntity<Review> addLike(@PathVariable("reviewId") Long reviewId){
+    public ResponseEntity<Review> addLike(@PathVariable("reviewId") Long reviewId, HttpSession session){
         if (reviewId == null) {
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         }
-
         Review review = this.reviewsService.getById(reviewId);
 
+        //first time like review
+        if (session.getAttribute(reviewId.toString()) == null){
+            session.setAttribute(reviewId.toString(), "");
+        }
+        //unlike review
+        if (session.getAttribute(reviewId.toString()).equals("like") && review.getLikes() > 0){
+            session.setAttribute(reviewId.toString(), "");
+            review.setLikes(review.getLikes() - 1);
+            reviewsService.save(review);
+            return new ResponseEntity<>(review, HttpStatus.OK);
+        }
+        //like disliked review
+        if (session.getAttribute(reviewId.toString()).equals("dislike") && review.getDislikes() > 0){
+            session.setAttribute(reviewId.toString(), "like");
+            review.setLikes(review.getLikes() + 1);
+            review.setDislikes(review.getDislikes() - 1);
+            reviewsService.save(review);
+            return new ResponseEntity<>(review, HttpStatus.OK);
+        }
+        //usual like
+        session.setAttribute(reviewId.toString(), "like");
         review.setLikes(review.getLikes() + 1);
 
         reviewsService.save(review);
@@ -76,14 +100,34 @@ public class ReviewsRestControllerV1 {
     }
 
     @RequestMapping(value = "/{reviewId}/dislike", method = RequestMethod.PATCH)
-    public ResponseEntity<Review> addDislike(@PathVariable("reviewId") Long reviewId){
+    public ResponseEntity<Review> addDislike(@PathVariable("reviewId") Long reviewId, HttpSession session){
         if (reviewId == null) {
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         }
-
         Review review = this.reviewsService.getById(reviewId);
 
-        review.setLikes(review.getDislikes() + 1);
+        //first time dislike review
+        if (session.getAttribute(reviewId.toString()) == null){
+            session.setAttribute(reviewId.toString(), "");
+        }
+        //remove dislike review
+        if (session.getAttribute(reviewId.toString()).equals("dislike") && review.getDislikes() > 0){
+            session.setAttribute(reviewId.toString(), "");
+            review.setDislikes(review.getDislikes() - 1);
+            reviewsService.save(review);
+            return new ResponseEntity<>(review, HttpStatus.OK);
+        }
+        //dislike liked review
+        if (session.getAttribute(reviewId.toString()).equals("like") && review.getLikes() > 0){
+            session.setAttribute(reviewId.toString(), "dislike");
+            review.setLikes(review.getLikes() - 1);
+            review.setDislikes(review.getDislikes() + 1);
+            reviewsService.save(review);
+            return new ResponseEntity<>(review, HttpStatus.OK);
+        }
+        //usual dislike
+        session.setAttribute(reviewId.toString(), "dislike");
+        review.setDislikes(review.getDislikes() + 1);
 
         reviewsService.save(review);
 
