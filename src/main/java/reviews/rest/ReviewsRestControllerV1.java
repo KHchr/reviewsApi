@@ -9,11 +9,14 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import reviews.PageDecorator;
+import reviews.model.Rating;
 import reviews.model.Review;
+import reviews.service.RatingsService;
 import reviews.service.ReviewsService;
 
 import javax.servlet.http.HttpSession;
 import java.util.Date;
+import java.util.List;
 
 @Slf4j
 @RestController
@@ -22,9 +25,11 @@ import java.util.Date;
 public class ReviewsRestControllerV1 {
 
     private final ReviewsService reviewsService;
+    private final RatingsService ratingsService;
 
-    public ReviewsRestControllerV1(ReviewsService reviewsService) {
+    public ReviewsRestControllerV1(ReviewsService reviewsService, RatingsService ratingsService) {
         this.reviewsService = reviewsService;
+        this.ratingsService = ratingsService;
     }
 
 //    @RequestMapping(value = "{dishId}", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
@@ -56,6 +61,17 @@ public class ReviewsRestControllerV1 {
         if (review == null){
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         }
+        Rating rating = new Rating();
+        List<Review> reviews = reviewsService.getListDishReviews(review.getDishId());
+        Double newRating = 0.0;
+        for (Review value : reviews) {
+            newRating += value.getGrade();
+        }
+        newRating = newRating / reviews.size();
+        rating.setRating(newRating);
+        rating.setId(review.getDishId());
+        ratingsService.save(rating);
+
         Date date = new Date();
         review.setDate(date);
         review.setLikes(0);

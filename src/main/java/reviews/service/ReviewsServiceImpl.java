@@ -7,6 +7,9 @@ import reviews.PageDecorator;
 import reviews.model.Review;
 import reviews.repository.ReviewsRepository;
 
+import java.util.ArrayList;
+import java.util.List;
+
 @Slf4j
 @Service
 public class ReviewsServiceImpl implements ReviewsService{
@@ -32,7 +35,14 @@ public class ReviewsServiceImpl implements ReviewsService{
     }
 
     @Override
+    public List<Review> getListDishReviews(Long id) {
+        log.info("IN ReviewsServiceImpl getListDishReviews {}", id);
+        return new ArrayList<>(reviewsRepository.findByDishId(id));
+    }
+
+    @Override
     public Review getById(Long id) {
+        log.info("IN ReviewsServiceImpl getById {}", id);
         return reviewsRepository.getOne(id);
     }
 
