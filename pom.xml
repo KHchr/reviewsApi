@@ -14,9 +14,9 @@
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-starter-parent</artifactId>
         <version>2.3.3.RELEASE</version>
+        <relativePath /> <!-- lookup parent from repository -->
     </parent>
 
-    <packaging>jar</packaging>
 
     <properties>
         <lombok.version>1.18.10</lombok.version>
@@ -79,11 +79,26 @@
                     </configuration>
                     <executions>
                         <execution>
+                            <id>repackage</id>
                             <goals>
                                 <goal>repackage</goal>
                             </goals>
+                            <configuration>
+                                <classifier>exec</classifier>
+                            </configuration>
                         </execution>
                     </executions>
+                </plugin>
+
+                <plugin>
+                    <groupId>com.google.cloud.tools</groupId>
+                    <artifactId>jib-maven-plugin</artifactId>
+                    <version>2.7.0</version>
+                    <configuration>
+                        <to>
+                            <image>mkhviyu/reviewsapp</image>
+                        </to>
+                    </configuration>
                 </plugin>
             </plugins>
         </pluginManagement>

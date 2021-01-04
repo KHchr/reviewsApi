@@ -1,9 +1,9 @@
 package reviews.service;
 
-import org.springframework.data.domain.Pageable;
 import reviews.PageDecorator;
 import reviews.model.Review;
 
+import javax.servlet.http.HttpSession;
 import java.util.List;
 
 
@@ -11,7 +11,9 @@ public interface ReviewsService {
 
     void save(Review review);
 
-    PageDecorator<Review> getPageDishReviews(Long id, Pageable pageable);
+    void likeReview(Review review, HttpSession session);
+    void dislikeReview(Review review, HttpSession session);
+    PageDecorator<Review> getPageDishReviews(Long id, int page, int limit);
 
     List<Review> getListDishReviews(Long id);
 
